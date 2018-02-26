@@ -18,21 +18,21 @@
 package co.rsk.rpc.netty;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
+import io.netty.handler.timeout.IdleStateHandler;
 
 import javax.annotation.Nullable;
 import java.net.InetAddress;
 
 public class Web3WebSocketServer {
+
+    private static final int SOCKET_TIMEOUT_SECONDS = 120;
 
     private final InetAddress host;
     private final int port;
@@ -64,6 +64,9 @@ public class Web3WebSocketServer {
                     p.addLast(new WebSocketServerProtocolHandler("/websocket"));
                     p.addLast(web3ServerHandler);
                     p.addLast(new Web3ResultWebSocketResponseHandler());
+
+                    p.addLast(new IdleStateHandler(0, 0, SOCKET_TIMEOUT_SECONDS));
+                    p.addLast(new Web3IdleStateHandler());
                 }
             });
         webSocketChannel = b.bind(host, port);

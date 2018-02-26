@@ -17,19 +17,23 @@
  */
 package co.rsk.rpc.netty;
 
+import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
 
-public class Web3ResultWebSocketResponseHandler extends SimpleChannelInboundHandler<Web3Result> {
-
+/**
+ * WebSockets connections are persistent, so this handler listens to events from
+ * {@link io.netty.handler.timeout.IdleStateHandler} and closes idle clients.
+ */
+public class Web3IdleStateHandler extends ChannelDuplexHandler {
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, Web3Result msg) {
-        ctx.write(new TextWebSocketFrame(msg.getContent()));
-    }
-
-    @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) {
-        ctx.flush();
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) {
+        if (evt instanceof IdleStateEvent) {
+            IdleStateEvent e = (IdleStateEvent) evt;
+            if (e.state() == IdleState.READER_IDLE) {
+                ctx.close();
+            }
+        }
     }
 }
