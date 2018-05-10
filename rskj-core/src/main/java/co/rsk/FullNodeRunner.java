@@ -32,6 +32,7 @@ import co.rsk.net.MessageHandler;
 import co.rsk.net.Metrics;
 import co.rsk.net.discovery.UDPServer;
 import co.rsk.rpc.netty.Web3HttpServer;
+import co.rsk.util.Benchmarker;
 import org.ethereum.core.*;
 import org.ethereum.net.eth.EthVersion;
 import org.ethereum.net.server.ChannelManager;
@@ -49,7 +50,8 @@ import java.util.stream.Collectors;
 
 @Component
 public class FullNodeRunner implements NodeRunner {
-    private static Logger logger = LoggerFactory.getLogger("fullnoderunner");
+    private static final Logger logger = LoggerFactory.getLogger("fullnoderunner");
+    private static final Logger benchmarkerLogger = LoggerFactory.getLogger("benchmarker");
 
     private final Rsk rsk;
     private final UDPServer udpServer;
@@ -111,6 +113,9 @@ public class FullNodeRunner implements NodeRunner {
 
         logger.info("Running {},  core version: {}-{}", rskSystemProperties.genesisInfo(), rskSystemProperties.projectVersion(), rskSystemProperties.projectVersionModifier());
         BuildInfo.printInfo();
+
+        // build the main rsk benchmarker so that it can be used from anywhere
+        Benchmarker.create("rsk", benchmarkerLogger);
 
         // this should be the genesis block at this point
         transactionPool.start(blockchain.getBestBlock());
