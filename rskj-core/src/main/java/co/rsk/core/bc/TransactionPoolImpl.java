@@ -74,7 +74,7 @@ public class TransactionPoolImpl implements TransactionPool {
     private Block bestBlock;
 
     private Repository poolRepository;
-    private final TxPendingValidator validator = new TxPendingValidator();
+    private final TxPendingValidator validator;
 
     public TransactionPoolImpl(BlockStore blockStore,
                                ReceiptStore receiptStore,
@@ -110,6 +110,7 @@ public class TransactionPoolImpl implements TransactionPool {
         this.outdatedTimeout = outdatedTimeout;
 
         this.poolRepository = repository.startTracking();
+        this.validator = new TxPendingValidator(config);
 
         if (this.outdatedTimeout > 0) {
             this.cleanerTimer = Executors.newSingleThreadScheduledExecutor(r -> new Thread(r, "TransactionPoolCleanerTimer"));
@@ -455,7 +456,13 @@ public class TransactionPoolImpl implements TransactionPool {
             return true;
         }
 
-        return validator.isValid(tx, bestBlock.getGasLimitAsInteger());
+        AccountState state = repository.getAccountState(tx.getSender());
+
+        if (state == null) {
+            state = new AccountState();
+        }
+
+        return validator.isValid(tx, bestBlock, state);
     }
 
     public static class TransactionSortedSet extends TreeSet<Transaction> {
