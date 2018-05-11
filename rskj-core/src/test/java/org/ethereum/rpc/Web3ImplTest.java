@@ -269,6 +269,7 @@ public class Web3ImplTest {
                 null,
                 null,
                 null,
+                null,
                 null
         );
 
@@ -962,6 +963,7 @@ public class Web3ImplTest {
                 null,
                 null,
                 null,
+                null,
                 null
         );
 
@@ -1280,6 +1282,7 @@ public class Web3ImplTest {
                 peerServer,
                 null,
                 null,
+                null,
                 null
         );
     }
@@ -1330,6 +1333,7 @@ public class Web3ImplTest {
                 null,
                 nodeBlockProcessor,
                 null,
+                null,
                 configCapabilities
         );
     }
@@ -1359,6 +1363,7 @@ public class Web3ImplTest {
                 txPoolModule,
                 Web3Mocks.getMockChannelManager(),
                 Web3Mocks.getMockRepository(),
+                null,
                 null,
                 null,
                 null,
@@ -1409,6 +1414,7 @@ public class Web3ImplTest {
                 txPoolModule,
                 Web3Mocks.getMockChannelManager(),
                 Web3Mocks.getMockRepository(),
+                null,
                 null,
                 null,
                 null,
