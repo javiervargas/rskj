@@ -123,8 +123,7 @@ public class Start {
         this.peerServer = peerServer;
         this.peerClientFactory = peerClientFactory;
 
-//        PruneConfiguration pruneConfiguration = new PruneConfiguration(200, 50, 300);
-        PruneConfiguration pruneConfiguration = new PruneConfiguration(5000, 100, 10000);
+        PruneConfiguration pruneConfiguration = rskSystemProperties.getPruneConfiguration();
         this.pruneService = new PruneService(pruneConfiguration, rskSystemProperties, blockchain, PrecompiledContracts.REMASC_ADDR);
     }
 
@@ -194,7 +193,9 @@ public class Start {
             }
         }
 
-        pruneService.start();
+        if (rskSystemProperties.isPruneEnabled()) {
+            pruneService.start();
+        }
     }
 
     private void startRPCServer() throws InterruptedException {
@@ -223,11 +224,17 @@ public class Start {
 
     public void stop() {
         logger.info("Shutting down RSK node");
-        pruneService.stop();
+
+        if (rskSystemProperties.isPruneEnabled()) {
+            pruneService.stop();
+        }
+
         syncPool.stop();
+
         if (rskSystemProperties.isRpcEnabled()) {
             web3Service.stop();
         }
+
         peerServer.stop();
         messageHandler.stop();
         channelManager.stop();
